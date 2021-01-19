@@ -1,0 +1,5 @@
+app/libs/lib/*
+app/src/main/obj
+app/src/main/libs
+.gradle/
+.idea/
