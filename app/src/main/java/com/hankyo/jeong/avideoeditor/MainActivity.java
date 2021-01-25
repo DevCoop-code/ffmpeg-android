@@ -19,7 +19,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.Size;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.Toast;
+
+import com.hankyo.jeong.avideoeditor.Adapter.VideoThumbnailAdapter;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +40,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     String[] REQUIRED_PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     private ContentResolver contentResolver = null;
+
+    GridView videoGridView = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         // Get Video Data from ContentProvider
         try {
             contentResolver = getContentResolver();
+            VideoThumbnailAdapter thumbnailAdapter = new VideoThumbnailAdapter(this, contentResolver);
 
             Cursor cursor = getVideo();
             while (cursor.moveToNext()) {
@@ -97,11 +105,20 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
                 Log.d(LOG, "title : " + title + ", image URI : " + videoUri);
 
-                Bitmap bitmap = MediaStore.Video.Thumbnails.getThumbnail(contentResolver, id, MediaStore.Video.Thumbnails.MICRO_KIND, null);
+                thumbnailAdapter.addVideoContentInfo(id);
+//                Bitmap bitmap = MediaStore.Video.Thumbnails.getThumbnail(contentResolver, id, MediaStore.Video.Thumbnails.MICRO_KIND, null);
 //                videoThumbNail.setImageBitmap(bitmap);
             }
 
             cursor.close();
+
+            videoGridView.setAdapter(thumbnailAdapter);
+            videoGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                    Toast.makeText(MainActivity.this, "" + position, Toast.LENGTH_SHORT).show();
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -173,6 +190,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private void initProperties() {
 //        videoThumbNail = findViewById(R.id.videoThumbNail);
+
+        videoGridView = (GridView)findViewById(R.id.videoGridView);
     }
 
     /*
